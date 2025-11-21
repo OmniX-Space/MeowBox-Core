@@ -20,7 +20,7 @@ MeowBox is a music streaming server that allows you to stream your favorite musi
 
 ### Supported databases
 - MySQL
-- PostgreSQL
+- PostgreSQL (coming soon)
 
 ## Star History
 

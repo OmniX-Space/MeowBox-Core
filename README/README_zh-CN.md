@@ -21,7 +21,7 @@
 
 ### 支持的数据库
 - MySQL
-- PostgreSQL
+- PostgreSQL (待支持)
 
 ## Star History
 
