@@ -1,0 +1,16 @@
+name: Test Runners
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+        branches:
+            - master
+jobs:
+    test-runners:
+        runs-on: self-hosted
+        steps:
+            - name: test-runners
+              run: |
+                  echo "Testing runners..."
+                  cat /etc/os-release
