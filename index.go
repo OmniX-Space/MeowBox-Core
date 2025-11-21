@@ -30,7 +30,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func defaultIndexPage(w http.ResponseWriter) {
-	websiteVersion := "0.0.1-rc-3"
+	websiteVersion := "0.0.1-rc3"
 	websiteNameCN := os.Getenv("WEBSITE_NAME_CN")
 	if websiteNameCN == "" {
 		websiteNameCN = "🎵 音乐搜索"
@@ -99,7 +99,7 @@ func defaultIndexPage(w http.ResponseWriter) {
 	fmt.Fprintf(w, ".loading {width: 80%%;margin: 4px auto;padding: 20px;text-align: center;color: deeppink;font-size: 45px;animation: spin 2s linear infinite;}@keyframes spin {from {transform: rotate(0deg);}to {transform: rotate(360deg);}}")
 	fmt.Fprintf(w, ".result {width: 85%%;margin: 4px auto;}.result-title {font-size: 24px;font-weight: bold;}.song-item {background-color: rgba(255, 255, 255, 0.4);border: 2px solid deeppink;border-radius: 15px;transition: all 0.3s ease;padding: 10px;}")
 	fmt.Fprintf(w, ".song-title-container {display: flex;align-items: center;}.song-name {font-size: 18px;font-weight: bold;}.cache {width: 45px;background-color: deepskyblue;color: #000;font-size: 14px;text-align: center;border-radius: 15px;}")
-	fmt.Fprintf(w, ".singer-name-icon,.lyric-icon {font-size: 18px;color: deeppink;}.singer-name,.lyric {font-size: 16px;color: #4f596b;}.playBtn,.pauseBtn {border: none;background-image: linear-gradient(to right, skyblue, deepskyblue);border-radius: 5px;padding: 5px 10px;font-size: 15px;transition: all 0.3s ease;}.playBtn:hover,.pauseBtn:hover {box-shadow: 0 4px 8px rgba(182, 232, 255, 0.7);transform: translateY(-5px);}")
+	fmt.Fprintf(w, ".singer-name-icon,.lyric-icon {font-size: 18px;color: deeppink;}.singer-name,.lyric {font-size: 16px;color: #4f596b;}.downloadBtn,.playBtn,.pauseBtn {border: none;background-image: linear-gradient(to right, skyblue, deepskyblue);border-radius: 5px;padding: 5px 10px;font-size: 15px;transition: all 0.3s ease;}.downloadBtn:hover,.playBtn:hover,.pauseBtn:hover {box-shadow: 0 4px 8px rgba(182, 232, 255, 0.7);transform: translateY(-5px);}")
 	fmt.Fprintf(w, ".audio-player-container {display: flex;align-items: center;}.audio {display: none;}.progress-bar {width: 70%%;margin: 4px auto;padding: 8px;background-color: rgba(255, 255, 255, 0.4);border: 1px solid deeppink;border-radius: 5px;display: flex;justify-content: space-between;align-items: center;}.progress {width: 0;height: 10px;background-color: deeppink;}.time {margin-left: auto;}")
 	fmt.Fprintf(w, ".stream_pcm {width: 80%%;margin: 4px auto;padding: 20px;background-color: rgba(135, 206, 235, 0.4);border: 1px solid skyblue;border-radius: 15px;}.stream_pcm_title {color: rgb(0, 100, 100);font-size: 16px;font-weight: bold;}.stream_pcm_content {margin-top: 10px;font-size: 14px;color: #555;}")
 	fmt.Fprintf(w, ".stream_pcm_type_title,.stream_pcm_content_num_title,.stream_pcm_content_time_title,.stream_pcm_response_title {font-weight: bold;}.stream_pcm_response_value {width: 100%%;background-color: rgba(255, 255, 255, 0.4);display: block;white-space: pre-wrap;overflow: auto;height: 200px;border-radius: 6px;padding: 10px;}")
@@ -113,7 +113,7 @@ func defaultIndexPage(w http.ResponseWriter) {
 	fmt.Fprintf(w, "<div class=\"search-form\"><div class=\"songContainer\"><div class=\"song\"><input type=\"text\" id=\"songInput\" class=\"songInput\" autocomplete=\"off\"></div></div>")
 	fmt.Fprintf(w, "<div class=\"singerContainer\"><div class=\"singer\"><input type=\"text\" id=\"artistInput\" class=\"artistInput\" autocomplete=\"off\"></div></div><div class=\"searchContainer\"><div class=\"search\"><button type=\"button\" id=\"searchBtn\" class=\"searchBtn\"></button></div></div></div>")
 	fmt.Fprintf(w, "<div class=\"getError\" id=\"getError\"></div><div class=\"no-enter\" id=\"noEnter\"></div><div class=\"no-result\" id=\"noResult\"></div><div class=\"loading\" id=\"loading\"><i class=\"fa fa-circle-o-notch\"></i></div>")
-	fmt.Fprintf(w, "<div class=\"result\" id=\"result\"><div class=\"result-title\" id=\"resultTitle\"></div><div class=\"result-list\"><div class=\"song-item\"><div class=\"song-title-container\"><div class=\"song-name\" id=\"songName\"></div><div class=\"cache\" id=\"cache\"></div></div><div class=\"singer-name\"><span class=\"singer-name-icon\" id=\"singerNameIcon\"><i class=\"fa fa-user-o\"></i></span><span class=\"singer-name-value\" id=\"singerName\"></span></div><div class=\"lyric\"><span class=\"lyric-icon\" id=\"lyricIcon\"><i class=\"fa fa-file-text-o\"></i></span><span class=\"lyric-value\" id=\"noLyric\"></span><span class=\"lyric-value\" id=\"lyric\"></span></div><div class=\"audio-player-container\"><button type=\"button\" class=\"playBtn\" id=\"playBtn\"></button><button type=\"button\" class=\"pauseBtn\" id=\"pauseBtn\"></button><audio class=\"audio\" id=\"audio\"></audio><div class=\"progress-bar\"><div class=\"progress\" id=\"progress\"></div><div class=\"time\" id=\"time\"></div></div></div></div></div></div>")
+	fmt.Fprintf(w, "<div class=\"result\" id=\"result\"><div class=\"result-title\" id=\"resultTitle\"></div><div class=\"result-list\"><div class=\"song-item\"><div class=\"song-title-container\"><div class=\"song-name\" id=\"songName\"></div><div class=\"cache\" id=\"cache\"></div></div><div class=\"singer-name\"><span class=\"singer-name-icon\" id=\"singerNameIcon\"><i class=\"fa fa-user-o\"></i></span><span class=\"singer-name-value\" id=\"singerName\"></span></div><div class=\"lyric\"><span class=\"lyric-icon\" id=\"lyricIcon\"><i class=\"fa fa-file-text-o\"></i></span><span class=\"lyric-value\" id=\"noLyric\"></span><span class=\"lyric-value\" id=\"lyric\"></span></div><button type=\"button\" class=\"downloadBtn\" id=\"downloadBtn\"></button><div class=\"audio-player-container\"><button type=\"button\" class=\"playBtn\" id=\"playBtn\"></button><button type=\"button\" class=\"pauseBtn\" id=\"pauseBtn\"></button><audio class=\"audio\" id=\"audio\"></audio><div class=\"progress-bar\"><div class=\"progress\" id=\"progress\"></div><div class=\"time\" id=\"time\"></div></div></div></div></div></div>")
 	fmt.Fprintf(w, "<div class=\"stream_pcm\" id=\"streamPcm\"><div class=\"stream_pcm_title\" id=\"streamPcmTitle\"></div><div class=\"stream_pcm_content\"><div class=\"stream_pcm_type\"><span class=\"stream_pcm_type_title\" id=\"streamPcmTypeTitle\"></span><span class=\"stream_pcm_type_value\" id=\"streamPcmTypeValue\"></span></div><div class=\"stream_pcm_content_num\"><span class=\"stream_pcm_content_num_title\" id=\"streamPcmContentNumTitle\"></span><span class=\"stream_pcm_content_num_value\">1</span></div><div class=\"stream_pcm_content_time\"><span class=\"stream_pcm_content_time_title\" id=\"streamPcmContentTimeTitle\"></span><span class=\"stream_pcm_content_time_value\" id=\"streamPcmContentTimeValue\"></span></div><div class=\"stream_pcm_response\"><span class=\"stream_pcm_response_title\" id=\"streamPcmResponseTitle\"></span><br><span class=\"stream_pcm_response_value\" id=\"streamPcmResponseValue\"></span></div></div></div>")
 	fmt.Fprintf(w, "<div class=\"info\" id=\"info\"></div><div class=\"showStreamPcmBtnContainer\" id=\"showStreamPcmBtnContainer\"><button type=\"button\" id=\"showStreamPcmBtn\" class=\"showStreamPcmBtn\"></button></div><div class=\"hideStreamPcmBtnContainer\" id=\"hideStreamPcmBtnContainer\"><button type=\"button\" id=\"hideStreamPcmBtn\" class=\"hideStreamPcmBtn\"></button></div><div class=\"footer\"><select id=\"languageSelect\" class=\"language-select\"><option value=\"zh-CN\">简体中文</option><option value=\"en\">English</option></select><div class=\"copyright\" id=\"copyright\"></div></div></div>")
 	fmt.Fprintf(w, "<script>")
@@ -135,6 +135,7 @@ func defaultIndexPage(w http.ResponseWriter) {
 	fmt.Fprintf(w, "const noLyrics = {'zh-CN': '暂无歌词','en': 'No lyrics'};")
 	fmt.Fprintf(w, "const playBtns = {'zh-CN': '<i class=\"fa fa-play-circle-o\"></i> 播放','en': '<i class=\"fa fa-play-circle-o\"></i> Play'};")
 	fmt.Fprintf(w, "const pauseBtns = {'zh-CN': '<i class=\"fa fa-pause-circle-o\"></i> 暂停','en': '<i class=\"fa fa-pause-circle-o\"></i> Pause'};")
+	fmt.Fprintf(w, "const downloadBtns = {'zh-CN': '<i class=\"fa fa-download\"></i> 下载','en': '<i class=\"fa fa-download\"></i> Download'};")
 	fmt.Fprintf(w, "const streamPcmTitle = {'zh-CN': '<i class=\"fa fa-info-circle\"></i> stream_pcm 响应讯息：','en': '<i class=\"fa fa-info-circle\"></i> stream_pcm response: '};")
 	fmt.Fprintf(w, "const streamPcmTypeTitle = {'zh-CN': '响应类型：','en': 'Response type: '};")
 	fmt.Fprintf(w, "const streamPcmTypeValue = {'zh-CN': '单曲播放讯息','en': 'Single song playback message'};")
@@ -165,6 +166,7 @@ func defaultIndexPage(w http.ResponseWriter) {
 	fmt.Fprintf(w, "document.getElementById('resultTitle').innerHTML = resultTitles[browserLang] || '<i class=\"fa fa-list-ul\"></i> Search Result';")
 	fmt.Fprintf(w, "document.getElementById('cache').innerHTML = caches[browserLang] || 'Cache';")
 	fmt.Fprintf(w, "document.getElementById('noLyric').innerHTML = noLyrics[browserLang] || 'No lyrics';")
+	fmt.Fprintf(w, "document.getElementById('downloadBtn').innerHTML = downloadBtns[browserLang] || '<i class=\"fa fa-download\"></i> Download';")
 	fmt.Fprintf(w, "document.getElementById('playBtn').innerHTML = playBtns[browserLang] || '<i class=\"fa fa-play-circle-o\"></i> Play';")
 	fmt.Fprintf(w, "document.getElementById('pauseBtn').innerHTML = pauseBtns[browserLang] || '<i class=\"fa fa-pause-circle-o\"></i> Pause';")
 	fmt.Fprintf(w, "document.getElementById('streamPcmTitle').innerHTML = streamPcmTitle[browserLang] || '<i class=\"fa fa-info-circle\"></i> stream_pcm response: ';")
@@ -200,6 +202,7 @@ func defaultIndexPage(w http.ResponseWriter) {
 	fmt.Fprintf(w, "document.getElementById('resultTitle').innerHTML = resultTitles[selectedLang] || '<i class=\"fa fa-list-ul\"></i> Search Result';")
 	fmt.Fprintf(w, "document.getElementById('cache').innerHTML = caches[selectedLang] || 'Cache';")
 	fmt.Fprintf(w, "document.getElementById('noLyric').innerHTML = noLyrics[selectedLang] || 'No lyrics';")
+	fmt.Fprintf(w, "document.getElementById('downloadBtn').innerHTML = downloadBtns[selectedLang] || '<i class=\"fa fa-download\"></i> Download';")
 	fmt.Fprintf(w, "document.getElementById('playBtn').innerHTML = playBtns[selectedLang] || '<i class=\"fa fa-play-circle-o\"></i> Play';")
 	fmt.Fprintf(w, "document.getElementById('pauseBtn').innerHTML = pauseBtns[selectedLang] || '<i class=\"fa fa-pause-circle-o\"></i> Pause';")
 	fmt.Fprintf(w, "document.getElementById('streamPcmTitle').innerHTML = streamPcmTitle[selectedLang] || '<i class=\"fa fa-info-circle\"></i> stream_pcm response: ';")
@@ -225,6 +228,7 @@ func defaultIndexPage(w http.ResponseWriter) {
 	fmt.Fprintf(w, "const cache = document.getElementById('cache');")
 	fmt.Fprintf(w, "const singerName = document.getElementById('singerName');")
 	fmt.Fprintf(w, "const noLyric = document.getElementById('noLyric');")
+	fmt.Fprintf(w, "const downloadBtn = document.getElementById('downloadBtn');")
 	fmt.Fprintf(w, "const playBtn = document.getElementById('playBtn');")
 	fmt.Fprintf(w, "const pauseBtn = document.getElementById('pauseBtn');")
 	fmt.Fprintf(w, "const lyric = document.getElementById('lyric');")
@@ -241,6 +245,7 @@ func defaultIndexPage(w http.ResponseWriter) {
 	fmt.Fprintf(w, "result.style.display = 'none';")
 	fmt.Fprintf(w, "cache.style.display = 'none';")
 	fmt.Fprintf(w, "noLyric.style.display = 'none';")
+	fmt.Fprintf(w, "downloadBtn.style.display = 'none';")
 	fmt.Fprintf(w, "playBtn.style.display = 'none';")
 	fmt.Fprintf(w, "pauseBtn.style.display = 'none';")
 	fmt.Fprintf(w, "streamPcm.style.display = 'none';")
@@ -270,6 +275,8 @@ func defaultIndexPage(w http.ResponseWriter) {
 	fmt.Fprintf(w, "streamPcmContentTimeValue.innerHTML = new Date().toISOString();")
 	// Display result
 	fmt.Fprintf(w, "result.style.display = 'block';")
+	// Display download button
+	fmt.Fprintf(w, "downloadBtn.style.display = 'block';")
 	// Display Play button
 	fmt.Fprintf(w, "playBtn.style.display = 'block';")
 	// Display showStreamPcmBtn
@@ -327,11 +334,34 @@ func defaultIndexPage(w http.ResponseWriter) {
 	fmt.Fprintf(w, "customProgress.style.width = progress + '%%';")
 	// Find current lyric
 	fmt.Fprintf(w, "let currentLyric = parsedLyrics.find((lyric, index, arr) =>")
-	fmt.Fprintf(w, "lyric.timestamp > audioPlayer.currentTime && (index === 0 || arr[index - 1].timestamp <= audioPlayer.currentTime));")
+	fmt.Fprintf(w, "lyric.timestamp > audioPlayer.currentTime - 3 && (index === 0 || arr[index - 1].timestamp <= audioPlayer.currentTime));")
 	fmt.Fprintf(w, "lyric.textContent = currentLyric ? currentLyric.lyricLine : '';")
 	fmt.Fprintf(w, "});")
 	// Save current time before playing audio
 	fmt.Fprintf(w, "let savedCurrentTime = 0;")
+	// DownloadBtn click event
+	fmt.Fprintf(w, "downloadBtn.addEventListener('click', async function () {")
+	// try
+	fmt.Fprintf(w, "try {")
+	// Get audio_full_url
+	fmt.Fprintf(w, "const audioDownloadUrl = data.audio_full_url;")
+	// Get audio file name
+	fmt.Fprintf(w, "const audioDownloadFileName = data.title + ' - ' + data.artist + '.flac';")
+	// Fetch audio file
+	fmt.Fprintf(w, "const downloadResponse = await fetch(audioDownloadUrl);")
+	fmt.Fprintf(w, "if (!downloadResponse.ok) {throw new Error('Failed to fetch audio file');}")
+	fmt.Fprintf(w, "const audioBlob = await downloadResponse.blob();")
+	// Create download link
+	fmt.Fprintf(w, "const downloadUrl = URL.createObjectURL(audioBlob);")
+	// Go to download link
+	fmt.Fprintf(w, "const a = document.createElement('a');a.href = downloadUrl;a.download = audioDownloadFileName;a.style.display = 'none';document.body.appendChild(a);a.click();")
+	// Clean up download link
+	fmt.Fprintf(w, "setTimeout(() => {document.body.removeChild(a);URL.revokeObjectURL(downloadUrl);}, 0);")
+	// catch error
+	fmt.Fprintf(w, "} catch (error) {")
+	// Show error message
+	fmt.Fprintf(w, "console.error('Download failed:', error);alert('Failed to download audio file: ', error);")
+	fmt.Fprintf(w, "}});")
 	// PlayBtn click event
 	fmt.Fprintf(w, "playBtn.addEventListener('click', function () {")
 	// Save current time
