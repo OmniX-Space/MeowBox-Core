@@ -7,10 +7,10 @@
 <a href="README.md"><img src="https://img.shields.io/badge/-English-grey.svg?style=popout" alt="English"></a>
 <a href="README/README_zh-CN.md"><img src="https://img.shields.io/badge/-中文(简体)-grey.svg?style=popout" alt="中文(简体)"></a></p>
 
-# What is MeowBox?
+## What is MeowBox?
 MeowBox is a music streaming server that allows you to stream your favorite music to any device on the internet. It is built using Go programming language and can be easily deployed on any platform that supports Go.
 
-## Features
+### Features
 - Play music from your server
 - Music streaming for your embedded devices
 - Music library management
@@ -18,6 +18,6 @@ MeowBox is a music streaming server that allows you to stream your favorite musi
 - User authentication and authorization
 - Music collection function
 
-## Supported databases
+### Supported databases
 - MySQL
 - PostgreSQL

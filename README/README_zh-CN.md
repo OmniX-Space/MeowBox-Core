@@ -8,10 +8,10 @@
 <a href="/README/README_zh-CN.md"><img src="https://img.shields.io/badge/-中文(简体)-grey.svg?style=popout" alt="中文(简体)"></a>
 </p>
 
-# 什么是 酷喵音乐盒(MeowBox) ？
+## 什么是 酷喵音乐盒(MeowBox) ？
 酷喵音乐盒(MeowBox) 是一个开源的音乐串流工具，允许您将您最喜欢的音乐流式传输到互联网上的任何设备。它使用 Go 编程语言构建，可以轻松部署在任何支持 Go 的平台上。
 
-## 功能
+### 功能
 - 在线听音乐
 - 为嵌入式设备提供音乐串流服务
 - 管理音乐库
@@ -19,6 +19,6 @@
 - 用户身份验证和授权
 - 音乐收藏功能
 
-## 支持的数据库
+### 支持的数据库
 - MySQL
 - PostgreSQL
