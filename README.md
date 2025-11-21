@@ -21,3 +21,13 @@ MeowBox is a music streaming server that allows you to stream your favorite musi
 ### Supported databases
 - MySQL
 - PostgreSQL
+
+## Star History
+
+<a href="https://star-history.com/#IntelligentlyEverything/MeowEmbeddedMusicServer&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=IntelligentlyEverything/MeowEmbeddedMusicServer&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=IntelligentlyEverything/MeowEmbeddedMusicServer&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=IntelligentlyEverything/MeowEmbeddedMusicServer&type=Date" />
+ </picture>
+</a>
