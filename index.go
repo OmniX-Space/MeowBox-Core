@@ -30,7 +30,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func defaultIndexPage(w http.ResponseWriter) {
-	websiteVersion := "0.0.1-rc3"
+	websiteVersion := "0.0.1"
 	websiteNameCN := os.Getenv("WEBSITE_NAME_CN")
 	if websiteNameCN == "" {
 		websiteNameCN = "🎵 音乐搜索"
