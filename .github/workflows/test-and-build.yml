@@ -1,0 +1,34 @@
+name: Test and Build Project
+on:
+    workflow_dispatch:
+        inputs:
+            build_type:
+                description: "Build type: version or pre"
+                required: true
+                type: choice
+                options:
+                    - version
+                    - pre
+            version_number:
+                description: "Version number"
+                required: true
+                type: string
+jobs:
+    build:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+            - name: Test code
+              run: |
+                  echo "Testing code"
+            - name: Build version
+              if: ${{ github.event.inputs.build_type == 'version' }}
+              run: |
+                  echo "Building version ${{ github.event.inputs.version_number }}"
+                  go mod tidy
+            - name: Build pre-release
+              if: ${{ github.event.inputs.build_type == 'pre' }}
+              run: |
+                  echo "Building pre-release ${{ github.event.inputs.version_number }}"
+                  go mod tidy
