@@ -3,15 +3,12 @@ package handler
 import (
 	"log"
 	"net/http"
-
-	"github.com/OmniX-Space/MeowBox-Core/internal/service"
 )
-
-func NotFoundHandler(w http.ResponseWriter, r *http.Request) {}
 
 // ErrorHandler Common error response handler
 func ErrorHandler(w http.ResponseWriter, r *http.Request, statusCode int) {
 	loadErrorTemplate()
+	log.Printf("[Info] [Web Access] Handler http error page: %d, on path: %s", statusCode, r.URL.Path)
 
 	w.WriteHeader(statusCode)
 	SetHeaders(w, "text/html; charset=utf-8")
@@ -35,7 +32,7 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, statusCode int) {
 		message = "An unexpected error occurred."
 	}
 
-	data := service.ErrorPageData{
+	data := errorPageData{
 		StatusCode: statusCode,
 		Title:      title,
 		Message:    message,

@@ -14,6 +14,13 @@
             "max_header_bytes": 1
         }
     },
+    "password": {
+        "memory": 4,
+        "iterations": 3,
+        "parallelism": 2,
+        "salt_length": 16,
+        "key_length": 32
+    },
     "database": {
         "driver": "mysql",
         "host": "localhost",

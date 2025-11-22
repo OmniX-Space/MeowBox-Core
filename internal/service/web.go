@@ -12,12 +12,8 @@ func getServerAddress(host string, port int) string {
 	return host + ":" + strconv.Itoa(port)
 }
 
-func CreateWebService() *http.Server {
+func CreateWebService(config *Config) *http.Server {
 	log.Printf("[Info] Create web service")
-	config, err := GetConfig()
-	if err != nil {
-		log.Fatalf("[Error] Failed to load config: %v", err)
-	}
 
 	addr := getServerAddress(config.Server.Host, config.Server.Port)
 
@@ -38,11 +34,7 @@ func CreateWebService() *http.Server {
 	return server
 }
 
-func ListenWebService(server *http.Server) {
-	config, err := GetConfig()
-	if err != nil {
-		log.Fatalf("[Error] Failed to load config: %v", err)
-	}
+func ListenWebService(config *Config, server *http.Server) {
 	addr := getServerAddress(config.Server.Host, config.Server.Port)
 	if config.Server.Tls.Enabled {
 		log.Printf("[Info] Starting HTTPS server on %s", addr)
@@ -59,8 +51,5 @@ func ListenWebService(server *http.Server) {
 		if err != nil {
 			log.Fatalf("[Error] HTTP server failed: %v", err)
 		}
-	}
-	if err != nil && err != http.ErrServerClosed {
-		log.Fatalf("[Error] Web server terminated unexpectedly: %v", err)
 	}
 }

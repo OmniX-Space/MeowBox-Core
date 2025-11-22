@@ -62,7 +62,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		// Decode the URL path in case it's URL encoded
 		decodedURL, err := url.QueryUnescape(urlPath)
 		if err != nil {
-			NotFoundHandler(w, r)
+			ErrorHandler(w, r, 404)
 			return
 		}
 		// Determine the protocol based on the URL path
@@ -72,7 +72,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		} else if strings.HasPrefix(decodedURL, "https/") {
 			protocol = "https://"
 		} else {
-			NotFoundHandler(w, r)
+			ErrorHandler(w, r, 404)
 			return
 		}
 		// Remove the protocol part from the decoded URL
@@ -83,21 +83,21 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		// Create a new HTTP request to the decoded URL, without copying headers
 		req, err := http.NewRequest("GET", decodedURL, nil)
 		if err != nil {
-			NotFoundHandler(w, r)
+			ErrorHandler(w, r, 404)
 			return
 		}
 		// Send the request and get the response
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil || resp.StatusCode != http.StatusOK {
-			NotFoundHandler(w, r)
+			ErrorHandler(w, r, 404)
 			return
 		}
 		defer resp.Body.Close()
 		// Read the response body into a byte slice
 		fileContent, err := io.ReadAll(resp.Body)
 		if err != nil {
-			NotFoundHandler(w, r)
+			ErrorHandler(w, r, 404)
 			return
 		}
 		// Set appropriate Content-Type based on file extension
@@ -161,7 +161,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		tempFilePath = strings.ReplaceAll(fullFilePath, " ", "+")
 		fileContent, err = GetFileContent(tempFilePath)
 		if err != nil {
-			NotFoundHandler(w, r)
+			ErrorHandler(w, r, 404)
 			return
 		}
 	}
