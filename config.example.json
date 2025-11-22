@@ -1,9 +1,21 @@
 {
     "server": {
         "host": "0.0.0.0",
-        "port": 2233
+        "port": 2233,
+        "tls": {
+            "enabled": false,
+            "cert_file": "",
+            "key_file": ""
+        },
+        "advanced": {
+            "read_timeout": 30,
+            "write_timeout": 30,
+            "idle_timeout": 300,
+            "max_header_bytes": 1
+        }
     },
     "database": {
+        "driver": "mysql",
         "host": "localhost",
         "port": 3306,
         "username": "root",
