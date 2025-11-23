@@ -28,6 +28,7 @@
         "username": "root",
         "password": "password",
         "database": "meowbox",
-        "prefix": "box_"
+        "prefix": "box_",
+        "file_path": ""
     }
 }

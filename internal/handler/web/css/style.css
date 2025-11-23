@@ -1,0 +1,14 @@
+/* Global styles */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Main styles */
+.container {
+    height: 100vh;
+    background: url('/img/background.webp') no-repeat center center fixed;
+    background-size: cover;
+}

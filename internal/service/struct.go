@@ -32,6 +32,7 @@ type Config struct {
 		Password string `json:"password"`
 		Database string `json:"database"`
 		Prefix   string `json:"prefix"`
+		FilePath string `json:"file_path"`
 	} `json:"database"`
 }
 
