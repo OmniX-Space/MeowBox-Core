@@ -14,6 +14,9 @@ import (
 //go:embed web
 var webFiles embed.FS
 
+//go:embed web/install.html
+var installTemplateContent string
+
 //go:embed web/index.html
 var pageTemplateContent string
 
@@ -21,11 +24,24 @@ var pageTemplateContent string
 var errorTemplateContent string
 
 var (
-	pageTemplate  *template.Template
-	errorTemplate *template.Template
-	errorOnce     sync.Once
-	pageOnce      sync.Once
+	installTemplate *template.Template
+	pageTemplate    *template.Template
+	errorTemplate   *template.Template
+	installOnce     sync.Once
+	pageOnce        sync.Once
+	errorOnce       sync.Once
 )
+
+// loadInstallTemplate Initialize template (executed only once)
+func loadInstallTemplate() {
+	installOnce.Do(func() {
+		var err error
+		installTemplate, err = template.New("install").Parse(installTemplateContent)
+		if err != nil {
+			log.Fatalf("[Error] Failed to parse install template: %v", err)
+		}
+	})
+}
 
 // loadPageTemplate Initialize template (executed only once)
 func loadPageTemplate() {
@@ -78,5 +94,4 @@ func StaticFileHandler(w http.ResponseWriter, r *http.Request) {
 
 func SetHeaders(w http.ResponseWriter, contentType string) {
 	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Server", "CloudCat-Project")
 }

@@ -7,8 +7,9 @@ body {
 }
 
 /* Main styles */
-.container {
+#page {
     height: 100vh;
     background: url('/img/background.webp') no-repeat center center fixed;
     background-size: cover;
+    overflow: hidden;
 }

@@ -3,9 +3,10 @@ package service
 // Config represents the full configuration structure
 type Config struct {
 	Server struct {
-		Host string `json:"host"`
-		Port int    `json:"port"`
-		Tls  struct {
+		Host              string `json:"host"`
+		Port              int    `json:"port"`
+		ShowServerVersion bool   `json:"show_server_version"`
+		Tls               struct {
 			Enabled bool   `json:"enabled"`
 			Cert    string `json:"cert_file"`
 			Key     string `json:"key_file"`

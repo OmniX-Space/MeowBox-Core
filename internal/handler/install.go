@@ -20,7 +20,8 @@ func CheckInstall(config *service.Config) {
 		router.Handle("/font-awesome/", staticRouter)
 		router.Handle("/js/", staticRouter)
 		router.Handle("/img/", staticRouter)
-		server.Handler = router
+		router.Handle("/.well-known/", RouteWebDevTools())
+		server.Handler = InjectWebServerHeaders(config, router)
 		service.ListenWebService(config, server)
 		return
 	}
@@ -31,6 +32,15 @@ func InstallWebHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		ErrorHandler(w, r, http.StatusNotFound)
 		return
+	}
+	data := installPageData{
+		StatusCode: 200,
+	}
+	loadInstallTemplate()
+	w.WriteHeader(200)
+	SetHeaders(w, "text/html; charset=utf-8")
+	if err := installTemplate.Execute(w, data); err != nil {
+		log.Printf("[Error] Failed to render install page: %v", err)
 	}
 }
 

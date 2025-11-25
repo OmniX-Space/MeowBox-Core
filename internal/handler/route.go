@@ -2,6 +2,14 @@ package handler
 
 import "net/http"
 
+func RouteWebDevTools() *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/.well-known/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
+	return mux
+}
+
 func RouteStaticFiles() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/favicon.ico", StaticFileHandler)

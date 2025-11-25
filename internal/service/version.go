@@ -1,5 +1,5 @@
 package service
 
 func GetVersion() string {
-	return "0.1.0 dev 2025-11-22"
+	return "v0.1.0 dev 2025-11-24"
 }

@@ -14,6 +14,11 @@ type errorPageData struct {
 	Message    string
 }
 
+// InstallPageData Data model for install page template
+type installPageData struct {
+	StatusCode int
+}
+
 // IndexPageData Data model for index page template
 type indexPageData struct {
 	StatusCode int

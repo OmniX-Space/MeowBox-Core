@@ -12,7 +12,8 @@
             "write_timeout": 30,
             "idle_timeout": 300,
             "max_header_bytes": 1
-        }
+        },
+        "show_server_version": false
     },
     "password": {
         "memory": 4,
