@@ -9,11 +9,17 @@
 const en = {
     "hello": "Hello",
 };
+
 const zhCN = {
     "hello": "你好",
 };
+
+const zhTW = {
+    "hello": "哈囉",
+};
+
 const jp = {
     "hello": "こんにちは",
 };
 
-const languages = [en, zhCN, jp];
+const languages = [en, zhCN, zhTW, jp];

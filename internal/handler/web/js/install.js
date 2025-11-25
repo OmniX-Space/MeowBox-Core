@@ -6,7 +6,11 @@ function welcome() {
     welcomeDiv.classList.add("welcome");
     const welcomeButton = document.createElement("button");
     welcomeButton.classList.add("welcome-button");
-    welcomeButton.innerHTML = 'Next <i class="fa-solid fa-circle-arrow-right"></i>';
+    welcomeButton.innerHTML = '<i class="fa-regular fa-circle-right"></i>';
+    welcomeButton.addEventListener("click", () => {
+        page.removeChild(welcomeDiv);
+        language_select();
+    });
     welcomeDiv.appendChild(welcomeButton);
     function displayNextLanguage() {
         if (currentIndex >= languages.length) {
@@ -26,8 +30,19 @@ function welcome() {
     page.appendChild(welcomeDiv);
 }
 
-function install() {
+function language_select() {
+    const languageSelectDiv = document.createElement("div");
+    languageSelectDiv.classList.add("language-select");
+    const languageIcon = document.createElement("i");
+    languageIcon.classList.add("fa-solid", "fa-earth-americas");
+    languageSelectDiv.appendChild(languageIcon);
+    const languageSelectContainer = document.createElement("div");
+    languageSelectContainer.classList.add("language-select-container");
+    languageSelectDiv.appendChild(languageSelectContainer);
+    page.appendChild(languageSelectDiv);
 }
+
+function env_detection() { }
 
 // Load external script
 function loadScript(scriptUrl) {

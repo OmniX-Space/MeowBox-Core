@@ -7,22 +7,26 @@ import (
 	"github.com/OmniX-Space/MeowBox-Core/internal/service"
 )
 
+func StartInstall(config *service.Config) {
+	log.Println("[Info] Starting installation process.")
+	server := service.CreateWebService(config)
+	router := http.NewServeMux()
+	router.Handle("/", RouteInstall())
+	staticRouter := RouteStaticFiles()
+	router.Handle("/favicon.ico", staticRouter)
+	router.Handle("/css/", staticRouter)
+	router.Handle("/font-awesome/", staticRouter)
+	router.Handle("/js/", staticRouter)
+	router.Handle("/img/", staticRouter)
+	router.Handle("/.well-known/", RouteWebDevTools())
+	server.Handler = InjectWebServerHeaders(config, router)
+	service.ListenWebService(config, server)
+}
+
 func CheckInstall(config *service.Config) {
 	if GetInstallLock(config) == false {
 		log.Println("[Info] MeowBox-Core is not installed.")
-		log.Println("[Info] Starting installation process.")
-		server := service.CreateWebService(config)
-		router := http.NewServeMux()
-		router.Handle("/", RouteInstall())
-		staticRouter := RouteStaticFiles()
-		router.Handle("/favicon.ico", staticRouter)
-		router.Handle("/css/", staticRouter)
-		router.Handle("/font-awesome/", staticRouter)
-		router.Handle("/js/", staticRouter)
-		router.Handle("/img/", staticRouter)
-		router.Handle("/.well-known/", RouteWebDevTools())
-		server.Handler = InjectWebServerHeaders(config, router)
-		service.ListenWebService(config, server)
+		StartInstall(config)
 		return
 	}
 	log.Println("[Info] MeowBox-Core is already installed.")

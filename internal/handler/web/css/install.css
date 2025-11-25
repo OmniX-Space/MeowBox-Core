@@ -10,16 +10,31 @@
 
 .welcome-button {
     position: absolute;
+    height: 32px;
+    width: 32px;
     bottom: 64px;
-    width: 150px;
     backdrop-filter: blur(3px);
     border: 0;
-    border-radius: 20px;
+    border-radius: 100%;
     background-color: rgba(255, 255, 255, 0.2);
     color: white;
-    padding: 8px;
+    padding: 6px;
     font-size: 24px;
     cursor: pointer;
+}
+
+.welcome-button i {
+    position: relative;
+    top: -3px;
+    left: -5px;
+}
+
+.welcome-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.welcome-button:active {
+    background-color: rgba(255, 255, 255, 0.4);
 }
 
 .welcome h1 {
@@ -53,6 +68,39 @@
     animation: fadeInOut 3s forwards;
 }
 
+.language-select {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 95%;
+    border-radius: 20px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.language-select i {
+    position: absolute;
+    color: rgb(0, 102, 255);
+    font-size: 256px;
+    left: 32px;
+}
+
+.language-select-container {
+    position: absolute;
+    width: calc(100% - 416px);
+    height: calc(90% - 64px);
+    right: 32px;
+    bottom: 64px;
+    border-radius: 16px;
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
 .container {
     width: 80%;
     height: calc(100% - 100px);
@@ -60,4 +108,29 @@
     backdrop-filter: blur(3px);
     background-color: rgba(255, 255, 255, 0.2);
     margin: 50px auto;
+}
+
+@media (max-width: 768px) {
+    .language-select {
+        width: 65%;
+    }
+
+    .language-select i {
+        font-size: 128px;
+        left: auto;
+        top: 64px;
+    }
+
+    .language-select-container {
+        width: 80%;
+        height: calc(100% - 288px);
+        right: auto;
+        bottom: 64px;
+    }
+}
+
+@media (max-width: 480px) {
+    .language-select {
+        width: 85%;
+    }
 }
