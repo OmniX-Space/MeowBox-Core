@@ -25,6 +25,7 @@ jobs:
               uses: actions/checkout@v4
               with:
                 ref: v0.0.2-dev
+                fetch-depth: 0
             - name: Test code
               run: |
                   echo "Testing code"
@@ -74,6 +75,13 @@ jobs:
                   CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Darwin-amd64 .
                   echo "Build darwin arm64 binary"
                   CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Darwin-arm64 .
+            - name: Get latest tag
+              id: get_latest_tag
+              run: |
+                git fetch --tags
+                LATEST_TAG=$(git tag --sort=-refname | head -n 1)
+                echo "Latest tag found: $LATEST_TAG"
+                echo "previous_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
             - name: Upload binaries
               uses: softprops/action-gh-release@v1
               with:
@@ -94,7 +102,7 @@ jobs:
                   - macOS amd64
                   - macOS arm64
 
-                  **Full Changelog**: https://github.com/OmniX-Space/MeowBox-Core/compare/v0.0.1...${{ github.sha }}
+                  **Full Changelog**: https://github.com/OmniX-Space/MeowBox-Core/compare/${{ steps.get_latest_tag.outputs.previous_tag }}...${{ github.sha }}
                 files: |
                   MeowEmbeddedMusicServer-Linux-i386
                   MeowEmbeddedMusicServer-Linux-amd64
