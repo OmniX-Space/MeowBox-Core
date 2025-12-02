@@ -1,0 +1,13 @@
+{
+  "devices": {
+    "80:B5:4E:D4:F9:04": {
+      "mac": "80:B5:4E:D4:F9:04",
+      "username": "test",
+      "device_name": "ESP32音乐播放器",
+      "token": "c31ad4f9c77d991b2d2b572bb7af9b1fc0a256ede2cf05a3cf51431ffaa1b0f2",
+      "bind_time": "2025-11-26T12:41:13.9407887+08:00",
+      "last_seen": "2025-11-26T12:41:13.9407887+08:00",
+      "is_active": true
+    }
+  }
+}

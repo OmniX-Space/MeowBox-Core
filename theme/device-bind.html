@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备绑定 - Meow Music</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hint {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .hint code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .device-list {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .device-list h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .device-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .device-info {
+            flex: 1;
+        }
+
+        .device-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .device-mac {
+            font-size: 13px;
+            color: #999;
+            font-family: 'Courier New', monospace;
+        }
+
+        .device-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-online {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .status-offline {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .btn-unbind {
+            padding: 6px 16px;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-left: 10px;
+        }
+
+        .btn-unbind:hover {
+            background: #d32f2f;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 设备绑定</h1>
+        <p class="subtitle">将您的ESP32音乐播放器绑定到账号</p>
+
+        <div id="alertContainer"></div>
+
+        <form id="bindForm">
+            <div class="form-group">
+                <label for="macAddress">MAC地址 *</label>
+                <input 
+                    type="text" 
+                    id="macAddress" 
+                    placeholder="例如: AA:BB:CC:DD:EE:FF"
+                    pattern="[A-Fa-f0-9:]{17}"
+                    required
+                >
+                <div class="hint">
+                    💡 在ESP32串口日志中查找，格式如：<code>80:b5:4e:d4:fa:80</code>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="deviceName">设备名称（可选）</label>
+                <input 
+                    type="text" 
+                    id="deviceName" 
+                    placeholder="例如: 客厅音响"
+                >
+                <div class="hint">
+                    给设备起个名字，方便识别
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="bindBtn">
+                绑定设备
+            </button>
+
+            <button type="button" class="btn btn-secondary" onclick="loadDevices()">
+                刷新设备列表
+            </button>
+        </form>
+
+        <div class="device-list">
+            <h2>已绑定设备</h2>
+            <div id="deviceListContainer">
+                <div class="loading"></div> 正在加载...
+            </div>
+        </div>
+
+        <a href="/" class="back-link">← 返回首页</a>
+    </div>
+
+    <script>
+        // 显示提示消息
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.3s';
+                setTimeout(() => alert.remove(), 300);
+            }, 3000);
+        }
+
+        // 格式化MAC地址
+        function formatMac(mac) {
+            // 移除所有非字母数字字符
+            let cleaned = mac.replace(/[^A-Fa-f0-9]/g, '');
+            
+            // 如果长度不是12，返回原值
+            if (cleaned.length !== 12) {
+                return mac;
+            }
+            
+            // 每2个字符加一个冒号
+            return cleaned.match(/.{2}/g).join(':').toUpperCase();
+        }
+
+        // 绑定设备
+        document.getElementById('bindForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const macInput = document.getElementById('macAddress');
+            const deviceNameInput = document.getElementById('deviceName');
+            const bindBtn = document.getElementById('bindBtn');
+            
+            // 格式化MAC地址
+            const mac = formatMac(macInput.value);
+            const deviceName = deviceNameInput.value.trim() || 'ESP32音乐播放器';
+            
+            // 禁用按钮
+            bindBtn.disabled = true;
+            bindBtn.innerHTML = '<span class="loading"></span> 绑定中...';
+            
+            try {
+                const response = await fetch('/api/device/bind-direct', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        mac: mac,
+                        device_name: deviceName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showAlert('✅ 设备绑定成功！', 'success');
+                    macInput.value = '';
+                    deviceNameInput.value = '';
+                    
+                    // 刷新设备列表
+                    setTimeout(() => loadDevices(), 500);
+                } else {
+                    showAlert('❌ ' + (data.message || '绑定失败'), 'error');
+                }
+            } catch (error) {
+                showAlert('❌ 网络错误：' + error.message, 'error');
+            } finally {
+                bindBtn.disabled = false;
+                bindBtn.innerHTML = '绑定设备';
+            }
+        });
+        
+        // 加载设备列表
+        async function loadDevices() {
+            const container = document.getElementById('deviceListContainer');
+            container.innerHTML = '<div class="loading"></div> 正在加载...';
+            
+            try {
+                const response = await fetch('/api/device/list');
+                const data = await response.json();
+                
+                if (data.success && data.devices && data.devices.length > 0) {
+                    container.innerHTML = '';
+                    data.devices.forEach(device => {
+                        const item = document.createElement('div');
+                        item.className = 'device-item';
+                        item.innerHTML = `
+                            <div class="device-info">
+                                <div class="device-name">${device.device_name || 'ESP32音乐播放器'}</div>
+                                <div class="device-mac">MAC: ${device.mac}</div>
+                            </div>
+                            <span class="device-status ${device.is_active ? 'status-online' : 'status-offline'}">
+                                ${device.is_active ? '🟢 在线' : '🔴 离线'}
+                            </span>
+                            <button class="btn-unbind" onclick="unbindDevice('${device.mac}')">
+                                解绑
+                            </button>
+                        `;
+                        container.appendChild(item);
+                    });
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>📱 还没有绑定的设备</p>
+                            <p style="margin-top: 10px; font-size: 13px;">请输入ESP32的MAC地址来绑定设备</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="alert alert-error">加载失败: ${error.message}</div>`;
+            }
+        }
+        
+        // 解绑设备
+        async function unbindDevice(mac) {
+            if (!confirm(`确定要解绑设备 ${mac} 吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/device/unbind', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mac: mac })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showAlert('✅ 设备已解绑', 'success');
+                    loadDevices();
+                } else {
+                    showAlert('❌ ' + (data.message || '解绑失败'), 'error');
+                }
+            } catch (error) {
+                showAlert('❌ 网络错误：' + error.message, 'error');
+            }
+        }
+        
+        // 页面加载时获取设备列表
+        loadDevices();
+        
+        // MAC地址输入时自动格式化
+        document.getElementById('macAddress').addEventListener('input', (e) => {
+            const value = e.target.value;
+            // 只在输入完整时格式化
+            if (value.replace(/[^A-Fa-f0-9]/g, '').length === 12) {
+                e.target.value = formatMac(value);
+            }
+        });
+    </script>
+</body>
+</html>

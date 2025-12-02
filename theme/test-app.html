@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meow Music - 测试版</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 { text-align: center; color: #667eea; margin-bottom: 30px; }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover { background: #5568d3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .msg {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .error { background: #fee; color: #c33; border: 1px solid #fcc; }
+        .success { background: #efe; color: #3c3; border: 1px solid #cfc; }
+        .info { background: #e3f2fd; color: #1976d2; border: 1px solid #90caf9; }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .tab.active { background: #667eea; color: white; }
+        .form { display: none; }
+        .form.active { display: block; }
+        #debug {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Meow Music</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('login')">登录</button>
+            <button class="tab" onclick="switchTab('register')">注册</button>
+        </div>
+        
+        <div id="message"></div>
+        
+        <div id="loginForm" class="form active">
+            <input type="text" id="loginUsername" placeholder="用户名" required>
+            <input type="password" id="loginPassword" placeholder="密码" required>
+            <button onclick="doLogin()">登录</button>
+        </div>
+        
+        <div id="registerForm" class="form">
+            <input type="text" id="regUsername" placeholder="用户名" required>
+            <input type="email" id="regEmail" placeholder="邮箱" required>
+            <input type="password" id="regPassword" placeholder="密码（至少6位）" required>
+            <button onclick="doRegister()">注册</button>
+        </div>
+        
+        <div id="debug" style="display:none;"></div>
+        <button onclick="toggleDebug()" style="background:#888;margin-top:10px;">显示/隐藏调试信息</button>
+    </div>
+
+    <script>
+        let debugMode = false;
+        
+        function log(msg) {
+            console.log(msg);
+            if (debugMode) {
+                const debug = document.getElementById('debug');
+                debug.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + msg + '</div>';
+                debug.scrollTop = debug.scrollHeight;
+            }
+        }
+        
+        function toggleDebug() {
+            debugMode = !debugMode;
+            document.getElementById('debug').style.display = debugMode ? 'block' : 'none';
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+            showMessage('', '');
+        }
+        
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('message');
+            if (msg) {
+                msgDiv.innerHTML = '<div class="msg ' + type + '">' + msg + '</div>';
+            } else {
+                msgDiv.innerHTML = '';
+            }
+        }
+        
+        async function doRegister() {
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            
+            if (!username || !email || !password) {
+                showMessage('请填写所有字段', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('密码至少6位', 'error');
+                return;
+            }
+            
+            log('开始注册: ' + username);
+            showMessage('注册中...', 'info');
+            
+            try {
+                const data = JSON.stringify({
+                    username: username,
+                    email: email,
+                    password: password
+                });
+                
+                log('发送数据: ' + data);
+                
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: data
+                });
+                
+                log('响应状态: ' + response.status);
+                
+                const text = await response.text();
+                log('响应内容: ' + text);
+                
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (e) {
+                    throw new Error('服务器返回了非JSON数据: ' + text.substring(0, 100));
+                }
+                
+                if (response.ok) {
+                    showMessage('注册成功！请登录', 'success');
+                    setTimeout(() => {
+                        switchTab('login');
+                        document.getElementById('loginUsername').value = username;
+                    }, 1500);
+                } else {
+                    showMessage(result.error || '注册失败', 'error');
+                }
+            } catch (error) {
+                log('错误: ' + error.message);
+                showMessage('错误: ' + error.message, 'error');
+            }
+        }
+        
+        async function doLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                showMessage('请填写用户名和密码', 'error');
+                return;
+            }
+            
+            log('开始登录: ' + username);
+            showMessage('登录中...', 'info');
+            
+            try {
+                const data = JSON.stringify({
+                    username: username,
+                    password: password
+                });
+                
+                log('发送数据: ' + data);
+                
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: data
+                });
+                
+                log('响应状态: ' + response.status);
+                
+                const text = await response.text();
+                log('响应内容: ' + text);
+                
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (e) {
+                    throw new Error('服务器返回了非JSON数据: ' + text.substring(0, 100));
+                }
+                
+                if (response.ok) {
+                    localStorage.setItem('token', result.token);
+                    showMessage('登录成功！', 'success');
+                    log('Token已保存');
+                    
+                    setTimeout(() => {
+                        alert('登录成功！Token: ' + result.token.substring(0, 20) + '...\n\n现在可以使用API了！\n\n（实际应用中会跳转到主界面）');
+                    }, 500);
+                } else {
+                    showMessage(result.error || '登录失败', 'error');
+                }
+            } catch (error) {
+                log('错误: ' + error.message);
+                showMessage('错误: ' + error.message, 'error');
+            }
+        }
+        
+        log('页面加载完成');
+    </script>
+</body>
+</html>

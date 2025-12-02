@@ -27,8 +27,58 @@ jobs:
               run: |
                   echo "Building version ${{ github.event.inputs.version_number }}"
                   go mod tidy
+                  echo "Build linux i386 binary"
+                  CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Linux-i386 . && upx -9 MeowEmbeddedMusicServer-Linux-i386
+                  echo "Build linux amd64 binary"
+                  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Linux-amd64 . && upx -9 MeowEmbeddedMusicServer-Linux-amd64
+                  echo "Build linux arm64 binary"
+                  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Linux-arm64 . && upx -9 MeowEmbeddedMusicServer-Linux-arm64
+                  echo "Build windows i386 binary"
+                  CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Windows-i386.exe . && upx -9 MeowEmbeddedMusicServer-Windows-i386.exe
+                  echo "Build windows amd64 binary"
+                  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Windows-amd64.exe . && upx -9 MeowEmbeddedMusicServer-Windows-amd64.exe
+                  echo "Build windows arm64 binary"
+                  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Windows-arm64.exe . && upx -9 MeowEmbeddedMusicServer- Windows-arm64.exe
+                  echo "Build darwin amd64 binary"
+                  CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Darwin-amd64 .
+                  echo "Build darwin arm64 binary"
+                  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Darwin-arm64 .
             - name: Build pre-release
               if: ${{ github.event.inputs.build_type == 'pre' }}
               run: |
                   echo "Building pre-release ${{ github.event.inputs.version_number }}"
                   go mod tidy
+                  echo "Build linux i386 binary"
+                  CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Linux-i386 . && upx -9 MeowEmbeddedMusicServer-Linux-i386
+                  echo "Build linux amd64 binary"
+                  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Linux-amd64 . && upx -9 MeowEmbeddedMusicServer-Linux-amd64
+                  echo "Build linux arm64 binary"
+                  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Linux-arm64 . && upx -9 MeowEmbeddedMusicServer-Linux-arm64
+                  echo "Build windows i386 binary"
+                  CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Windows-i386.exe . && upx -9 MeowEmbeddedMusicServer-Windows-i386.exe
+                  echo "Build windows amd64 binary"
+                  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Windows-amd64.exe . && upx -9 MeowEmbeddedMusicServer-Windows-amd64.exe
+                  echo "Build windows arm64 binary"
+                  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Windows-arm64.exe . && upx -9 MeowEmbeddedMusicServer-Windows-arm64.exe
+                  echo "Build darwin amd64 binary"
+                  CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Darwin-amd64 .
+                  echo "Build darwin arm64 binary"
+                  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Darwin-arm64 .
+            - name: Upload binaries
+              uses: softprops/action-gh-release@v1
+              with:
+                tag_name: ${{ github.event.inputs.version_number }}
+                name: ${{ github.event.inputs.version_number }}
+                files: |
+                  MeowEmbeddedMusicServer-Linux-i386
+                  MeowEmbeddedMusicServer-Linux-amd64
+                  MeowEmbeddedMusicServer-Linux-arm64
+                  MeowEmbeddedMusicServer-Windows-i386.exe
+                  MeowEmbeddedMusicServer-Windows-amd64.exe
+                  MeowEmbeddedMusicServer-Windows-arm64.exe
+                  MeowEmbeddedMusicServer-Darwin-amd64
+                  MeowEmbeddedMusicServer-Darwin-arm64
+                prerelease: ${{ github.event.inputs.build_type == 'pre' }}
+                make_latest: ${{ github.event.inputs.build_type != 'pre' }}
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

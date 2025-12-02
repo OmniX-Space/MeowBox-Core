@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meow Music - 音乐播放器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .form {
+            display: none;
+        }
+        
+        .form.active {
+            display: block;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button[type="submit"]:hover {
+            background: #5568d3;
+        }
+        
+        button[type="submit"]:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .message.error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        
+        .message.success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+        
+        .app-container {
+            display: none;
+        }
+        
+        .app-container.active {
+            display: block;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-form input {
+            flex: 1;
+        }
+        
+        .search-form button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .result {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .result h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .result-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .result-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录/注册界面 -->
+    <div class="container" id="authContainer">
+        <h1>🎵 Meow Music</h1>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('login')">登录</button>
+            <button class="tab" onclick="switchTab('register')">注册</button>
+        </div>
+        
+        <div id="message"></div>
+        
+        <!-- 登录表单 -->
+        <form class="form active" id="loginForm" onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <label>用户名</label>
+                <input type="text" name="username" required placeholder="请输入用户名">
+            </div>
+            <div class="input-group">
+                <label>密码</label>
+                <input type="password" name="password" required placeholder="请输入密码">
+            </div>
+            <button type="submit" id="loginBtn">登录</button>
+        </form>
+        
+        <!-- 注册表单 -->
+        <form class="form" id="registerForm" onsubmit="handleRegister(event)">
+            <div class="input-group">
+                <label>用户名</label>
+                <input type="text" name="username" required placeholder="请输入用户名">
+            </div>
+            <div class="input-group">
+                <label>邮箱</label>
+                <input type="email" name="email" required placeholder="请输入邮箱">
+            </div>
+            <div class="input-group">
+                <label>密码</label>
+                <input type="password" name="password" required minlength="6" placeholder="至少6位密码">
+            </div>
+            <button type="submit" id="registerBtn">注册</button>
+        </form>
+    </div>
+    
+    <!-- 主应用界面 -->
+    <div class="container app-container" id="appContainer" style="max-width: 800px;">
+        <div class="header">
+            <h2>🎵 Meow Music</h2>
+            <button onclick="handleLogout()" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                退出
+            </button>
+        </div>
+        
+        <div class="search-box">
+            <form class="search-form" onsubmit="handleSearch(event)">
+                <input type="text" id="searchInput" placeholder="输入歌曲名称..." required>
+                <button type="submit">搜索</button>
+            </form>
+        </div>
+        
+        <div id="searchResult"></div>
+    </div>
+
+    <script>
+        // 全局状态
+        let currentUser = null;
+        let token = localStorage.getItem('token');
+        
+        // 页面加载时检查登录状态
+        window.onload = function() {
+            if (token) {
+                checkAuth();
+            }
+        };
+        
+        // 切换标签
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            const forms = document.querySelectorAll('.form');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                tabs[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+            
+            document.getElementById('message').innerHTML = '';
+        }
+        
+        // 显示消息
+        function showMessage(msg, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="message ${type}">${msg}</div>`;
+        }
+        
+        // 注册
+        async function handleRegister(e) {
+            e.preventDefault();
+            console.log('开始注册...');
+            const btn = document.getElementById('registerBtn');
+            btn.disabled = true;
+            btn.textContent = '注册中...';
+            
+            const formData = new FormData(e.target);
+            const data = {
+                username: formData.get('username'),
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
+            
+            console.log('注册数据:', data);
+            
+            try {
+                console.log('发送请求到: /api/auth/register');
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
+                
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                console.log('收到响应:', response.status);
+                
+                const result = await response.json();
+                console.log('解析结果:', result);
+                
+                if (response.ok) {
+                    token = result.token;
+                    localStorage.setItem('token', token);
+                    currentUser = result.user;
+                    showMessage('注册成功！', 'success');
+                    setTimeout(() => showApp(), 1000);
+                } else {
+                    showMessage(result.error || '注册失败', 'error');
+                }
+            } catch (error) {
+                console.error('注册错误:', error);
+                if (error.name === 'AbortError') {
+                    showMessage('请求超时，请检查网络连接', 'error');
+                } else {
+                    showMessage('网络错误: ' + error.message, 'error');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '注册';
+            }
+        }
+        
+        // 登录
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.textContent = '登录中...';
+            
+            const formData = new FormData(e.target);
+            const data = {
+                username: formData.get('username'),
+                password: formData.get('password')
+            };
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    token = result.token;
+                    localStorage.setItem('token', token);
+                    currentUser = result.user;
+                    showApp();
+                } else {
+                    showMessage(result.error || '登录失败', 'error');
+                }
+            } catch (error) {
+                showMessage('网络错误: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '登录';
+            }
+        }
+        
+        // 检查认证
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                if (response.ok) {
+                    currentUser = await response.json();
+                    showApp();
+                } else {
+                    localStorage.removeItem('token');
+                    token = null;
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+            }
+        }
+        
+        // 显示应用界面
+        function showApp() {
+            document.getElementById('authContainer').classList.remove('active');
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').classList.add('active');
+        }
+        
+        // 退出登录
+        function handleLogout() {
+            localStorage.removeItem('token');
+            token = null;
+            currentUser = null;
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('appContainer').classList.remove('active');
+            location.reload();
+        }
+        
+        // 搜索音乐
+        async function handleSearch(e) {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value;
+            const resultDiv = document.getElementById('searchResult');
+            
+            resultDiv.innerHTML = '<p style="text-align:center; padding:20px;">搜索中...</p>';
+            
+            try {
+                const response = await fetch(`/stream_pcm?song=${encodeURIComponent(query)}`);
+                const result = await response.json();
+                
+                if (result.title) {
+                    resultDiv.innerHTML = `
+                        <div class="result">
+                            <h3>${result.title}</h3>
+                            <p style="color:#666; margin-bottom:10px;">👤 ${result.artist}</p>
+                            ${result.from_cache ? '<span style="background:#e3f2fd; color:#1976d2; padding:4px 8px; border-radius:4px; font-size:12px;">缓存</span>' : ''}
+                            <div class="result-actions">
+                                <button onclick="playMusic('${result.audio_full_url}')">▶ 播放</button>
+                            </div>
+                            <audio id="player" controls style="width:100%; margin-top:15px;">
+                                <source src="${result.audio_full_url}" type="audio/mpeg">
+                            </audio>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p style="text-align:center; color:#999;">未找到歌曲</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p style="text-align:center; color:red;">搜索失败: ' + error.message + '</p>';
+            }
+        }
+        
+        // 播放音乐
+        function playMusic(url) {
+            const player = document.getElementById('player');
+            if (player) {
+                player.play();
+            }
+        }
+    </script>
+</body>
+</html>
