@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 // ListFiles function: Traverse all files in the specified directory and return a slice of the file path
@@ -122,36 +120,7 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 	// 特殊处理空music.mp3
 	isEmptyMusic := (err == nil && len(fileContent) == 0 && strings.HasSuffix(filePath, "/music.mp3"))
 	if err != nil || isEmptyMusic {
-		// 智能等待
-		if strings.HasPrefix(filePath, "/cache/music/") {
-			maxWaitSec := 10
-			if strings.HasSuffix(filePath, "/music.mp3") {
-				maxWaitSec = 60
-			}
-
-			// 指数退避重试：快速响应文件生成
-			start := time.Now()
-			for i := 0; ; i++ {
-				elapsed := time.Since(start)
-				if elapsed.Seconds() > float64(maxWaitSec) {
-					break
-				}
-
-				// 重试间隔 = min(200ms * 2^i, 1s)
-				waitDuration := time.Duration(200*(1<<uint(i))) * time.Millisecond
-				if waitDuration > time.Second {
-					waitDuration = time.Second
-				}
-				time.Sleep(waitDuration)
-
-				// 只检查解码后的主路径（避免冗余检查）
-				if info, statErr := os.Stat(fullPath); statErr == nil && (!isEmptyMusic || info.Size() > 0) {
-					http.ServeFile(w, r, fullPath)
-					return
-				}
-			}
-			fmt.Printf("[FAST] Timeout after %.1fs waiting for: %s\n", time.Since(start).Seconds(), fullPath)
-		}
+		// 没有/空的music.mp3文件，直接返回404
 		NotFoundHandler(w, r)
 		return
 	}

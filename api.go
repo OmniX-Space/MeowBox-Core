@@ -165,6 +165,7 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If still not found, request and cache the music item in a separate goroutine
+	// 直接进行流式播放
 	if !found {
 		fmt.Println("[Info] Updating music item cache from API request.")
 		musicItem = requestAndCacheMusic(song, singer)
@@ -196,18 +197,18 @@ func streamLiveHandler(w http.ResponseWriter, r *http.Request) {
 	// 设置 CORS 和音频相关头
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Accept-Ranges", "bytes")
-	
+
 	queryParams := r.URL.Query()
 	song := queryParams.Get("song")
 	singer := queryParams.Get("singer")
-	
+
 	fmt.Printf("[Stream Live] Request: song=%s, singer=%s\n", song, singer)
-	
+
 	if song == "" {
 		http.Error(w, "Missing song parameter", http.StatusBadRequest)
 		return
 	}
-	
+
 	// 1. 检查缓存是否存在
 	dirName := fmt.Sprintf("./files/cache/music/%s-%s", singer, song)
 	cachedFile := filepath.Join(dirName, "music.mp3")
@@ -218,19 +219,19 @@ func streamLiveHandler(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, cachedFile)
 		return
 	}
-	
+
 	// 2. 缓存不存在，获取远程URL并实时流式转码
 	fmt.Printf("[Stream Live] Cache miss, fetching from API...\n")
-	
+
 	// 调用枫雨API获取远程音乐URL（不下载，只获取URL）
 	remoteURL := getRemoteMusicURLOnly(song, singer)
 	if remoteURL == "" {
 		http.Error(w, "Failed to get remote music URL", http.StatusNotFound)
 		return
 	}
-	
+
 	fmt.Printf("[Stream Live] Starting live stream from: %s\n", remoteURL)
-	
+
 	// 4. 实时流式转码
 	if err := streamConvertToWriter(remoteURL, w); err != nil {
 		fmt.Printf("[Stream Live] Error: %v\n", err)

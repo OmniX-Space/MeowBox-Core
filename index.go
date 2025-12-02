@@ -11,7 +11,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "MeowMusicEmbeddedServer")
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Printf("[Web Access] Handling request for %s\n", r.URL.Path)
-	
+
 	// Serve full music app for both / and /app
 	if r.URL.Path == "/" || r.URL.Path == "/app" {
 		appPath := filepath.Join("theme", "full-app.html")
@@ -21,7 +21,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
+
 	// Test version available at /test
 	if r.URL.Path == "/test" {
 		testPath := filepath.Join("theme", "test-app.html")
@@ -31,7 +31,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	
+
 	// Access classic interface via /classic
 	if r.URL.Path == "/classic" {
 		indexPath := filepath.Join("theme", "index.html")
@@ -43,7 +43,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		defaultIndexPage(w)
 		return
 	}
-	
+
 	if r.URL.Path != "/" {
 		fileHandler(w, r)
 		return

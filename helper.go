@@ -85,7 +85,7 @@ func readFromCache(path string) (MusicItem, bool) {
 	if err != nil || !info.IsDir() {
 		return MusicItem{}, false
 	}
-	
+
 	dirName := filepath.Base(path)
 	parts := strings.SplitN(dirName, "-", 2)
 	var artist, title string
@@ -95,7 +95,7 @@ func readFromCache(path string) (MusicItem, bool) {
 	} else {
 		title = dirName
 	}
-	
+
 	return getLocalMusicItem(title, artist), true
 }
 
@@ -115,10 +115,10 @@ func requestAndCacheMusic(song, singer string) MusicItem {
 // 直接从远程URL流式转码（边下载边转码，超快！）
 func streamConvertAudio(inputURL, outputFile string) error {
 	fmt.Printf("[Info] Stream converting from URL (fast mode)\n")
-	
+
 	// 先写入临时文件，完成后再重命名（避免读取到不完整的文件）
 	tempFile := outputFile + ".tmp"
-	
+
 	// ffmpeg 直接读取远程 URL 并转码
 	// -t 600: 只下载前10分钟，减少80%下载量！
 	// 移除 reconnect 参数，避免兼容性问题
@@ -130,14 +130,14 @@ func streamConvertAudio(inputURL, outputFile string) error {
 		"-ac", "1", "-ar", "24000", "-b:a", "32k", "-q:a", "9",
 		"-bufsize", "64k",
 		tempFile)
-	
+
 	err := cmd.Run()
 	if err != nil {
 		fmt.Printf("[Error] Stream convert failed: %v\n", err)
 		os.Remove(tempFile) // 清理临时文件
 		return err
 	}
-	
+
 	// 检查生成的文件大小
 	fileInfo, err := os.Stat(tempFile)
 	if err != nil || fileInfo.Size() < 1024 {
@@ -152,7 +152,7 @@ func streamConvertAudio(inputURL, outputFile string) error {
 		fmt.Printf("[Error] Failed to rename temp file: %v\n", err)
 		return err
 	}
-	
+
 	fmt.Printf("[Success] Stream convert completed: %s\n", outputFile)
 	return nil
 }
@@ -160,30 +160,31 @@ func streamConvertAudio(inputURL, outputFile string) error {
 // 实时流式转码到 HTTP Writer（边下载边播放！）
 func streamConvertToWriter(inputURL string, w http.ResponseWriter) error {
 	fmt.Printf("[Info] Live streaming from URL: %s\n", inputURL)
-	
+
 	// ffmpeg 边下载边转码，输出到 stdout
 	cmd := exec.Command("ffmpeg",
 		"-i", inputURL,
 		"-threads", "0",
 		"-ac", "1", "-ar", "24000", "-b:a", "32k", "-q:a", "9",
 		"-f", "mp3",
+		"-map_metadata", "-1",
 		"pipe:1") // 输出到 stdout
-	
+
 	// 获取 stdout pipe
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return fmt.Errorf("failed to get stdout pipe: %v", err)
 	}
-	
+
 	// 启动 ffmpeg
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to start ffmpeg: %v", err)
 	}
-	
+
 	// 设置响应头
 	w.Header().Set("Content-Type", "audio/mpeg")
 	// 移除 Transfer-Encoding: chunked，让 Go 自动处理
-	
+
 	// 边读边写到 HTTP response
 	buf := make([]byte, 8192)
 	for {
@@ -198,7 +199,7 @@ func streamConvertToWriter(inputURL string, w http.ResponseWriter) error {
 			break
 		}
 	}
-	
+
 	cmd.Wait()
 	fmt.Printf("[Success] Live streaming completed\n")
 	return nil
