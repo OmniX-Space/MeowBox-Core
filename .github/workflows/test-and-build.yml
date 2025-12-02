@@ -77,7 +77,6 @@ jobs:
                 name: ${{ github.event.inputs.version_number }}
                 body: |
                   ### Build Information
-                  - Build Date: $(date +"%Y-%m-%d %H:%M:%S")
                   - Branch: v0.0.2-dev
                   - Commit: ${{ github.sha }}
 
