@@ -61,7 +61,7 @@ jobs:
                   echo "Build windows amd64 binary"
                   CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Windows-amd64.exe . && upx -9 MeowEmbeddedMusicServer-Windows-amd64.exe
                   echo "Build windows arm64 binary"
-                  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Windows-arm64.exe . && upx -9 MeowEmbeddedMusicServer-Windows-arm64.exe
+                  CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Windows-arm64.exe .
                   echo "Build darwin amd64 binary"
                   CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "-s -w" -trimpath -o MeowEmbeddedMusicServer-Darwin-amd64 .
                   echo "Build darwin arm64 binary"
