@@ -16,6 +16,10 @@ on:
 jobs:
     build:
         runs-on: self-hosted
+        permissions:
+            contents: write
+            actions: write
+            pull-requests: write
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -103,6 +107,6 @@ jobs:
                 prerelease: ${{ github.event.inputs.build_type == 'pre' }}
                 make_latest: ${{ github.event.inputs.build_type != 'pre' }}
               env:
-                # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                # GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
                 continue-on-error: true
