@@ -54,10 +54,17 @@ func GetFileContent(filePath string) ([]byte, error) {
 // fileHandler function: Handle file requests
 func fileHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Server", "MeowMusicEmbeddedServer")
-	// Obtain the path of the request
 	filePath := r.URL.Path
 
-	// Check if the request path starts with "/url/"
+	// 提前URL解码
+	decodedPath, decodeErr := url.QueryUnescape(filePath)
+	if decodeErr == nil {
+		// 兼容历史数据：将+替换为空格（仅当解码成功时）
+		decodedPath = strings.ReplaceAll(decodedPath, "+", " ")
+		filePath = decodedPath // 后续统一使用解码后路径
+	}
+
+	// 处理 /url/ 远程请求（保持不变）
 	if strings.HasPrefix(filePath, "/url/") {
 		// Extract the URL after "/url/"
 		urlPath := filePath[len("/url/"):]
@@ -102,161 +109,83 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 			NotFoundHandler(w, r)
 			return
 		}
-		// Set appropriate Content-Type based on file extension
-		ext := filepath.Ext(decodedURL)
-		switch ext {
-		case ".mp3":
-			w.Header().Set("Content-Type", "audio/mpeg")
-		case ".wav":
-			w.Header().Set("Content-Type", "audio/wav")
-		case ".flac":
-			w.Header().Set("Content-Type", "audio/flac")
-		case ".aac":
-			w.Header().Set("Content-Type", "audio/aac")
-		case ".ogg":
-			w.Header().Set("Content-Type", "audio/ogg")
-		case ".m4a":
-			w.Header().Set("Content-Type", "audio/mp4")
-		case ".amr":
-			w.Header().Set("Content-Type", "audio/amr")
-		case ".jpg", ".jpeg":
-			w.Header().Set("Content-Type", "image/jpeg")
-		case ".png":
-			w.Header().Set("Content-Type", "image/png")
-		case ".gif":
-			w.Header().Set("Content-Type", "image/gif")
-		case ".bmp":
-			w.Header().Set("Content-Type", "image/bmp")
-		case ".svg":
-			w.Header().Set("Content-Type", "image/svg+xml")
-		case ".webp":
-			w.Header().Set("Content-Type", "image/webp")
-		case ".txt":
-			w.Header().Set("Content-Type", "text/plain")
-		case ".lrc":
-			w.Header().Set("Content-Type", "text/plain")
-		case ".mrc":
-			w.Header().Set("Content-Type", "text/plain")
-		case ".json":
-			w.Header().Set("Content-Type", "application/json")
-		default:
-			w.Header().Set("Content-Type", "application/octet-stream")
-		}
+		setContentType(w, decodedURL)
 		// Write file content to response
 		w.Write(fileContent)
 		return
 	}
 
-	// Construct the complete file path
-	fullFilePath := filepath.Join("./files", filePath)
+	// 统一使用解码后路径
+	fullPath := filepath.Join("./files", filePath)
+	fileContent, err := GetFileContent(fullPath)
 
-	// Try replacing '+' with ' ' and check if the file exists
-	tempFilePath := strings.ReplaceAll(fullFilePath, "+", " ")
-	if _, err := os.Stat(tempFilePath); err == nil {
-		fullFilePath = tempFilePath
-	}
+	// 特殊处理空music.mp3
+	isEmptyMusic := (err == nil && len(fileContent) == 0 && strings.HasSuffix(filePath, "/music.mp3"))
+	if err != nil || isEmptyMusic {
+		// 智能等待
+		if strings.HasPrefix(filePath, "/cache/music/") {
+			maxWaitSec := 10
+			if strings.HasSuffix(filePath, "/music.mp3") {
+				maxWaitSec = 60
+			}
 
-	// Get file content
-	fileContent, err := GetFileContent(fullFilePath)
-	
-	// 检查是否为空文件（特别是 music.mp3，如果是空的也视为不存在，需要等待转码）
-	if err == nil && len(fileContent) == 0 && strings.HasSuffix(filePath, "/music.mp3") {
-		err = fmt.Errorf("file is empty")
-	}
-	
-	if err != nil {
-		// If file not found, try replacing ' ' with '+' and check again
-		tempFilePath = strings.ReplaceAll(fullFilePath, " ", "+")
-		fileContent, err = GetFileContent(tempFilePath)
-		
-		// 同样检查带 + 的路径是否为空
-		if err == nil && len(fileContent) == 0 && strings.HasSuffix(filePath, "/music.mp3") {
-			err = fmt.Errorf("file is empty")
-		}
-
-		if err != nil {
-			// 特殊处理：如果请求的是缓存中的文件，等待后台处理完成
-			fmt.Printf("[Web Access] File not found, checking path prefix: %s\n", filePath)
-			if strings.HasPrefix(filePath, "/cache/music/") {
-				// music.mp3 等待最多 60 秒，歌词等待最多 10 秒
-				maxWait := 10
-				if strings.HasSuffix(filePath, "/music.mp3") {
-					maxWait = 60
+			// 指数退避重试：快速响应文件生成
+			start := time.Now()
+			for i := 0; ; i++ {
+				elapsed := time.Since(start)
+				if elapsed.Seconds() > float64(maxWaitSec) {
+					break
 				}
-				
-				// URL 解码路径（处理中文文件名）
-				decodedPath, _ := url.QueryUnescape(filePath)
-				decodedPath = strings.ReplaceAll(decodedPath, "+", " ") // + 转空格
-				decodedFullPath := filepath.Join("./files", decodedPath)
-				
-				fmt.Printf("[Web Access] Waiting for file: %s (max %d seconds)\n", decodedFullPath, maxWait)
-				for i := 0; i < maxWait; i++ {
-					time.Sleep(1 * time.Second)
-					// 检查 URL 解码后的路径
-					if _, err := os.Stat(decodedFullPath); err == nil {
-						fmt.Printf("[Web Access] File ready after %d seconds: %s\n", i+1, decodedFullPath)
-						http.ServeFile(w, r, decodedFullPath)
-						return
-					}
-					// 检查原始路径
-					if _, err := os.Stat(fullFilePath); err == nil {
-						http.ServeFile(w, r, fullFilePath)
-						return
-					}
-					// 检查带 + 的路径
-					tempPath := strings.ReplaceAll(fullFilePath, " ", "+")
-					if _, err := os.Stat(tempPath); err == nil {
-						http.ServeFile(w, r, tempPath)
-						return
-					}
+
+				// 重试间隔 = min(200ms * 2^i, 1s)
+				waitDuration := time.Duration(200*(1<<uint(i))) * time.Millisecond
+				if waitDuration > time.Second {
+					waitDuration = time.Second
+				}
+				time.Sleep(waitDuration)
+
+				// 只检查解码后的主路径（避免冗余检查）
+				if info, statErr := os.Stat(fullPath); statErr == nil && (!isEmptyMusic || info.Size() > 0) {
+					http.ServeFile(w, r, fullPath)
+					return
 				}
 			}
-			NotFoundHandler(w, r)
-			return
+			fmt.Printf("[FAST] Timeout after %.1fs waiting for: %s\n", time.Since(start).Seconds(), fullPath)
 		}
+		NotFoundHandler(w, r)
+		return
 	}
 
-	// Set appropriate Content-Type based on file extension
-	ext := filepath.Ext(filePath)
-	switch ext {
-	case ".mp3":
-		w.Header().Set("Content-Type", "audio/mpeg")
-	case ".wav":
-		w.Header().Set("Content-Type", "audio/wav")
-	case ".flac":
-		w.Header().Set("Content-Type", "audio/flac")
-	case ".aac":
-		w.Header().Set("Content-Type", "audio/aac")
-	case ".ogg":
-		w.Header().Set("Content-Type", "audio/ogg")
-	case ".m4a":
-		w.Header().Set("Content-Type", "audio/mp4")
-	case ".amr":
-		w.Header().Set("Content-Type", "audio/amr")
-	case ".jpg", ".jpeg":
-		w.Header().Set("Content-Type", "image/jpeg")
-	case ".png":
-		w.Header().Set("Content-Type", "image/png")
-	case ".gif":
-		w.Header().Set("Content-Type", "image/gif")
-	case ".bmp":
-		w.Header().Set("Content-Type", "image/bmp")
-	case ".svg":
-		w.Header().Set("Content-Type", "image/svg+xml")
-	case ".webp":
-		w.Header().Set("Content-Type", "image/webp")
-	case ".txt":
-		w.Header().Set("Content-Type", "text/plain")
-	case ".lrc":
-		w.Header().Set("Content-Type", "text/plain")
-	case ".mrc":
-		w.Header().Set("Content-Type", "text/plain")
-	case ".json":
-		w.Header().Set("Content-Type", "application/json")
-	default:
+	// 避免重复Content-Type设置
+	setContentType(w, filePath)
+	w.Write(fileContent)
+}
+
+func setContentType(w http.ResponseWriter, path string) {
+	ext := strings.ToLower(filepath.Ext(path))
+	contentTypes := map[string]string{
+		".mp3":  "audio/mpeg",
+		".wav":  "audio/wav",
+		".flac": "audio/flac",
+		".aac":  "audio/aac",
+		".ogg":  "audio/ogg",
+		".m4a":  "audio/mp4",
+		".amr":  "audio/amr",
+		".jpg":  "image/jpeg",
+		".jpeg": "image/jpeg",
+		".png":  "image/png",
+		".gif":  "image/gif",
+		".bmp":  "image/bmp",
+		".svg":  "image/svg+xml",
+		".webp": "image/webp",
+		".txt":  "text/plain",
+		".lrc":  "text/plain",
+		".mrc":  "text/plain",
+		".json": "application/json",
+	}
+	if ct, ok := contentTypes[ext]; ok {
+		w.Header().Set("Content-Type", ct)
+	} else {
 		w.Header().Set("Content-Type", "application/octet-stream")
 	}
-
-	// Write file content to response
-	w.Write(fileContent)
 }
