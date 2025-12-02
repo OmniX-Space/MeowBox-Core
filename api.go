@@ -167,12 +167,15 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	// If still not found, request and cache the music item in a separate goroutine
 	// 直接进行流式播放
 	if !found {
+		encodedSong := url.QueryEscape(song)
+		encodedSinger := url.QueryEscape(singer)
+		streamURL := scheme + "://" + r.Host + "/stream_live?song=" + encodedSong + "&singer=" + encodedSinger
 		fmt.Println("[Info] Updating music item cache from API request.")
 		musicItem = requestAndCacheMusic(song, singer)
 		fmt.Println("[Info] Music item cache updated.")
 		musicItem.FromCache = false
-		musicItem.AudioURL = scheme + "://" + r.Host + "/stream_live?song=" + song + "&singer=" + singer
-		musicItem.AudioFullURL = scheme + "://" + r.Host + "/stream_live?song=" + song + "&singer=" + singer
+		musicItem.AudioURL = streamURL
+		musicItem.AudioFullURL = streamURL
 		musicItem.M3U8URL = scheme + "://" + r.Host + musicItem.M3U8URL
 		musicItem.LyricURL = scheme + "://" + r.Host + musicItem.LyricURL
 		musicItem.CoverURL = scheme + "://" + r.Host + musicItem.CoverURL
@@ -189,7 +192,9 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		musicItem.IP = ip
 	}
 
-	json.NewEncoder(w).Encode(musicItem)
+	encoder := json.NewEncoder(w)
+	encoder.SetEscapeHTML(false)
+	encoder.Encode(musicItem)
 }
 
 // streamLiveHandler 实时流式转码接口 - 边下载边播放，无需等待！
