@@ -29,14 +29,14 @@ type YuafengAPIFreeResponse struct {
 // 枫雨API response handler with multiple API fallback
 func YuafengAPIResponseHandler(sources, song, singer string) MusicItem {
 	fmt.Printf("[Info] Fetching music data for %s by %s\n", song, singer)
-	
+
 	// API hosts to try in order
 	apiHosts := []string{
 		"https://api.yuafeng.cn",
 		"https://api-v2.yuafeng.cn",
 		"https://api.yaohud.cn",
 	}
-	
+
 	var pathSuffix string
 	switch sources {
 	case "kuwo":
@@ -50,9 +50,9 @@ func YuafengAPIResponseHandler(sources, song, singer string) MusicItem {
 	default:
 		return MusicItem{}
 	}
-	
+
 	var fallbackItem MusicItem // 保存第一个有音乐但没歌词的结果
-	
+
 	// Try each API host - 尝试所有API直到找到歌词
 	for i, host := range apiHosts {
 		fmt.Printf("[Info] Trying API %d/%d: %s\n", i+1, len(apiHosts), host)
@@ -74,13 +74,13 @@ func YuafengAPIResponseHandler(sources, song, singer string) MusicItem {
 			fmt.Printf("[Warning] × API %s failed, trying next...\n", host)
 		}
 	}
-	
+
 	// 所有API都试完了
 	if fallbackItem.Title != "" {
 		fmt.Println("[Info] ▶ All 3 APIs tried - no lyrics found, returning music without lyrics")
 		return fallbackItem
 	}
-	
+
 	fmt.Println("[Error] ✗ All 3 APIs failed completely")
 	return MusicItem{}
 }
@@ -98,17 +98,17 @@ func tryFetchFromAPI(APIurl, song, singer string) MusicItem {
 		fmt.Println("[Error] Error reading the response body:", err)
 		return MusicItem{}
 	}
-	
+
 	// Check if response is HTML (starts with < character)
 	bodyStr := string(body)
 	if len(bodyStr) > 0 && bodyStr[0] == '<' {
 		fmt.Println("[Warning] API returned HTML instead of JSON")
 		fmt.Printf("[Debug] Saving HTML response to debug.html for inspection\n")
-		
+
 		// Save HTML to file for debugging
 		os.WriteFile("debug_api_response.html", body, 0644)
 		fmt.Println("[Info] HTML response saved to debug_api_response.html")
-		
+
 		// Try to extract JSON from HTML if embedded
 		// Look for common patterns where JSON might be embedded
 		if strings.Contains(bodyStr, `"song"`) && strings.Contains(bodyStr, `"singer"`) {
@@ -127,11 +127,11 @@ func tryFetchFromAPI(APIurl, song, singer string) MusicItem {
 				}
 			}
 		}
-		
+
 		fmt.Println("[Error] Cannot parse HTML response - API may be unavailable")
 		return MusicItem{}
 	}
-	
+
 parseSuccess:
 	var response YuafengAPIFreeResponse
 	err = json.Unmarshal(body, &response)
@@ -155,17 +155,17 @@ parseSuccess:
 
 	// 获取封面扩展名
 	ext := filepath.Ext(response.Data.Cover)
-	
+
 	// 保存远程 URL 到文件，供 file.go 流式转码使用
 	remoteURLFile := filepath.Join(dirName, "remote_url.txt")
 	os.WriteFile(remoteURLFile, []byte(response.Data.Music), 0644)
-	
+
 	// ========== 关键优化：先返回，后台异步处理 ==========
 	// 把下载、转码等耗时操作放到 goroutine 异步执行
 	go func() {
 		fmt.Printf("[Async] Starting background processing for: %s - %s\n", response.Data.Singer, response.Data.Song)
 		var wg sync.WaitGroup
-		
+
 		// ========== 1. 歌词处理 ==========
 		wg.Add(1)
 		go func() {
@@ -199,14 +199,14 @@ parseSuccess:
 				downloadFile(filepath.Join(dirName, "lyric.lrc"), lyricData)
 			}
 		}()
-		
+
 		// ========== 2. 封面处理 ==========
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			downloadFile(filepath.Join(dirName, "cover"+ext), response.Data.Cover)
 		}()
-		
+
 		// ========== 3. 音频转码 ==========
 		wg.Add(1)
 		go func() {
@@ -216,7 +216,7 @@ parseSuccess:
 				fmt.Println("[Async Warning] Cannot identify music format, using default .mp3:", err)
 				musicExt = ".mp3"
 			}
-			
+
 			outputMp3 := filepath.Join(dirName, "music.mp3")
 			err = streamConvertAudio(response.Data.Music, outputMp3)
 			if err != nil {
@@ -228,7 +228,7 @@ parseSuccess:
 				}
 			}
 		}()
-		
+
 		wg.Wait() // 等待所有任务完成
 		fmt.Printf("[Async] Background processing completed for: %s - %s\n", response.Data.Singer, response.Data.Song)
 	}()
@@ -236,7 +236,7 @@ parseSuccess:
 	// ========== 立即返回 JSON，使用标准 .mp3 URL ==========
 	// 注意：返回标准的 .mp3 URL，file.go 会在文件不存在时自动触发流式转码
 	basePath := "/cache/music/" + url.QueryEscape(response.Data.Singer+"-"+response.Data.Song)
-	
+
 	return MusicItem{
 		Title:        response.Data.Song,
 		Artist:       response.Data.Singer,
@@ -274,55 +274,55 @@ type YaohuLyricResponse struct {
 func fetchLyricFromYaohu(songName, artistName, dirPath string) bool {
 	apiKey := "bXO9eq1pomwR1cyVhzX"
 	apiURL := "https://api.yaohud.cn/api/music/qq"
-	
+
 	// 构建请求URL - QQ音乐VIP接口
-	requestURL := fmt.Sprintf("%s?key=%s&msg=%s&n=1&size=hq", 
-		apiURL, 
-		apiKey, 
+	requestURL := fmt.Sprintf("%s?key=%s&msg=%s&n=1&size=hq",
+		apiURL,
+		apiKey,
 		url.QueryEscape(songName))
-	
+
 	fmt.Printf("[Info] 🎵 Trying to fetch lyric from Yaohu QQ Music VIP API for: %s - %s\n", artistName, songName)
-	
+
 	// 创建带超时的HTTP客户端
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
-	
+
 	resp, err := client.Get(requestURL)
 	if err != nil {
 		fmt.Printf("[Error] Yaohu QQ Music API request failed: %v\n", err)
 		return false
 	}
 	defer resp.Body.Close()
-	
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("[Error] Failed to read API response: %v\n", err)
 		return false
 	}
-	
+
 	var qqResp YaohuQQMusicResponse
 	err = json.Unmarshal(body, &qqResp)
 	if err != nil {
 		fmt.Printf("[Error] Failed to parse API response: %v\n", err)
 		return false
 	}
-	
+
 	// 检查响应状态
 	if qqResp.Code != 200 {
 		fmt.Printf("[Warning] API returned error (code: %d, msg: %s)\n", qqResp.Code, qqResp.Msg)
 		return false
 	}
-	
+
 	// 检查viplrc URL是否存在
 	if qqResp.Data.Viplrc == "" {
 		fmt.Printf("[Warning] No lyric URL available for: %s\n", songName)
 		return false
 	}
-	
+
 	fmt.Printf("[Info] 🔍 Found song: %s - %s\n", qqResp.Data.Songname, qqResp.Data.Name)
 	fmt.Printf("[Info] 📝 Fetching lyric from: %s\n", qqResp.Data.Viplrc)
-	
+
 	// Step 2: 获取实际歌词内容
 	resp2, err := client.Get(qqResp.Data.Viplrc)
 	if err != nil {
@@ -330,22 +330,22 @@ func fetchLyricFromYaohu(songName, artistName, dirPath string) bool {
 		return false
 	}
 	defer resp2.Body.Close()
-	
+
 	body2, err := io.ReadAll(resp2.Body)
 	if err != nil {
 		fmt.Printf("[Error] Failed to read lyric response: %v\n", err)
 		return false
 	}
-	
+
 	// viplrc URL直接返回LRC文本，不是JSON
 	lyricText := string(body2)
-	
+
 	// 检查歌词内容
 	if lyricText == "" || len(lyricText) < 10 {
 		fmt.Printf("[Warning] No lyrics returned from viplrc URL\n")
 		return false
 	}
-	
+
 	// 将歌词写入文件
 	lyricFilePath := filepath.Join(dirPath, "lyric.lrc")
 	file, err := os.Create(lyricFilePath)
@@ -354,14 +354,14 @@ func fetchLyricFromYaohu(songName, artistName, dirPath string) bool {
 		return false
 	}
 	defer file.Close()
-	
+
 	// 写入歌词内容（LRC文本格式）
 	_, err = file.WriteString(lyricText)
 	if err != nil {
 		fmt.Printf("[Error] Failed to write lyric content: %v\n", err)
 		return false
 	}
-	
+
 	fmt.Printf("[Success] ✅ Lyric fetched from Yaohu QQ Music VIP API and saved to %s\n", lyricFilePath)
 	return true
 }
@@ -369,50 +369,50 @@ func fetchLyricFromYaohu(songName, artistName, dirPath string) bool {
 // getRemoteMusicURLOnly 只获取远程音乐URL，不下载不处理（用于实时流式播放）
 func getRemoteMusicURLOnly(song, singer string) string {
 	fmt.Printf("[Info] Getting remote music URL for: %s - %s\n", singer, song)
-	
+
 	// 尝试多个 API
 	apiHosts := []string{
 		"https://api.yuafeng.cn",
 		"https://api-v2.yuafeng.cn",
 	}
-	
+
 	sources := []string{"kuwo", "netease", "migu"}
 	pathMap := map[string]string{
 		"kuwo":    "/API/ly/kwmusic.php",
 		"netease": "/API/ly/wymusic.php",
 		"migu":    "/API/ly/mgmusic.php",
 	}
-	
+
 	client := &http.Client{Timeout: 15 * time.Second}
-	
+
 	for _, host := range apiHosts {
 		for _, source := range sources {
 			path := pathMap[source]
-			apiURL := fmt.Sprintf("%s%s?song=%s&singer=%s", host, path, url.QueryEscape(song), url.QueryEscape(singer))
-			
+			apiURL := fmt.Sprintf("%s%s?msg=%s-%s&n=1", host, path, url.QueryEscape(song), url.QueryEscape(singer))
+
 			resp, err := client.Get(apiURL)
 			if err != nil {
 				continue
 			}
 			defer resp.Body.Close()
-			
+
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				continue
 			}
-			
+
 			var response YuafengAPIFreeResponse
 			if err := json.Unmarshal(body, &response); err != nil {
 				continue
 			}
-			
+
 			if response.Data.Music != "" {
 				fmt.Printf("[Success] Got remote URL from %s: %s\n", source, response.Data.Music)
 				return response.Data.Music
 			}
 		}
 	}
-	
+
 	fmt.Println("[Error] Failed to get remote music URL from all APIs")
 	return ""
 }

@@ -171,8 +171,8 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 		musicItem = requestAndCacheMusic(song, singer)
 		fmt.Println("[Info] Music item cache updated.")
 		musicItem.FromCache = false
-		musicItem.AudioURL = scheme + "://" + r.Host + musicItem.AudioURL
-		musicItem.AudioFullURL = scheme + "://" + r.Host + musicItem.AudioFullURL
+		musicItem.AudioURL = scheme + "://" + r.Host + "/stream_live?song=" + song + "&singer=" + singer
+		musicItem.AudioFullURL = scheme + "://" + r.Host + "/stream_live?song=" + song + "&singer=" + singer
 		musicItem.M3U8URL = scheme + "://" + r.Host + musicItem.M3U8URL
 		musicItem.LyricURL = scheme + "://" + r.Host + musicItem.LyricURL
 		musicItem.CoverURL = scheme + "://" + r.Host + musicItem.CoverURL
