@@ -1,0 +1,57 @@
+name: 🐞 Report error
+description: Report an error (bug), please first check the FAQ and search the Issue list for the issue you want to raise.
+title: "[Bug]: "
+body:
+- type: checkboxes
+  id: check-answer
+  attributes:
+    label: Solution check
+    description: Please ensure that you have completed all of the following operations.
+    options:
+      - label: I have searched [Issues](https://github.com/OmniX-Space/MeowBox-Core/issues).However, no similar issues were found.
+        required: true
+- type: textarea
+  id: expected-behavior
+  attributes:
+    label: Expected behavior
+    description: A clear and concise description of what is expected to happen
+  validations:
+    required: true
+- type: textarea
+  id: actual-behavior
+  attributes:
+    label: Actual behavior
+    description: A clear and concise description of what actually happened.
+  validations:
+    required: true
+- type: input
+  id: version
+  attributes:
+    label: MeowBox-Core version
+    description: What version of MeowBox-Core are you using?
+    placeholder: e.g. v0.0.2
+  validations:
+    required: true
+- type: input
+  id: last-known-working-version
+  attributes:
+    label: The final normal version
+    description: If so, please fill in the final normal version here.
+    placeholder: e.g. v0.0.1
+- type: input
+  id: operating-system-version
+  attributes:
+    label: Operating system version
+    description: |
+      What version of operating system are you using?
+      On macOS, click on "Apple Menu > About This Machine";
+      On Linux, execute the `lsc_release` or `uname - a` command;
+      On Windows, click the Start button > Settings > System > About.
+    placeholder: "e.g. macOS 11.2.3, Windows 10 20H2, Debian 12.1.0"
+  validations:
+    required: true
+- type: textarea
+  id: additional-information
+  attributes:
+    label: Additional information
+    description: If your issue needs further explanation or you are facing a difficult-to-reproduce issue, please add more information here. (You can directly drag and drop images or videos into the text box)

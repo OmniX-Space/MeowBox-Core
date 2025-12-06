@@ -1,0 +1,36 @@
+name: ✨ Function request
+description: To come up with an idea for this project, please first review the frequently asked questions and search the Issue list to see if there are any issues you want to raise.
+title: "[Feature]: "
+body:
+- type: checkboxes
+  id: check-answer
+  attributes:
+    label: Solution check
+    description: Please ensure that you have completed all of the following operations.
+    options:
+      - label: I have searched [Issues](https://github.com/OmniX-Space/MeowBox-Core/issues).However, no similar issues were found.
+        required: true
+- type: textarea
+  id: problem-description
+  attributes:
+    label: Problem description
+    description: Please add a clear and concise description of the problem you want to solve.
+  validations:
+    required: true
+- type: textarea
+  id: proposed-solution
+  attributes:
+    label: Describe the solution you want
+    description: Briefly and clearly describe what you are about to happen
+  validations:
+    required: true
+- type: textarea
+  id: alternatives-considered
+  attributes:
+    label: Describe the alternative solutions you have considered
+    description: A concise and clear description of all alternative solutions or features you have considered
+- type: textarea
+  id: additional-information
+  attributes:
+    label: Additional information
+    description: If your question requires further explanation or if you would like to express other content, please add more information here. (Simply drag the image/video to the editing box to add it)
