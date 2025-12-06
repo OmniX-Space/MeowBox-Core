@@ -1,6 +1,6 @@
 name: ✨ Function request
 description: To come up with an idea for this project, please first review the frequently asked questions and search the Issue list to see if there are any issues you want to raise.
-title: "[Feature]: "
+title: "[Feature] "
 body:
 - type: checkboxes
   id: check-answer

@@ -1,6 +1,6 @@
 name: 🐞 Report error
 description: Report an error (bug), please first check the FAQ and search the Issue list for the issue you want to raise.
-title: "[Bug]: "
+title: "[Bug] "
 body:
 - type: checkboxes
   id: check-answer
