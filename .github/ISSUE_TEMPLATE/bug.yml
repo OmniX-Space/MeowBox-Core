@@ -44,8 +44,11 @@ body:
     label: Operating system version
     description: |
       What version of operating system are you using?
+
       On macOS, click on "Apple Menu > About This Machine";
+
       On Linux, execute the `lsc_release` or `uname - a` command;
+
       On Windows, click the Start button > Settings > System > About.
     placeholder: "e.g. macOS 11.2.3, Windows 10 20H2, Debian 12.1.0"
   validations:
